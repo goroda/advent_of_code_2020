@@ -1,7 +1,7 @@
-# advent_of_code_2020
-### _Alex Gorodetsky <alex@alexgorodetsky.com>_
+# Advent of Code 2020
 
-Advent of code 2020
+
+Author: Alex Gorodetsky <alex@alexgorodetsky.com>_
 
 ## License
 

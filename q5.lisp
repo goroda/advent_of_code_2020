@@ -1,24 +1,14 @@
 (in-package :q5)
 
 (defun get-row-id (line)
-  (let ((row
-          (loop with lb = 0
-                with ub = 128
-                for i from 0 to 6
-                if (string= "F" (aref line i))
-                  do (setq ub (+ lb (/ (- ub lb) 2)))
-                else
-                  do (setq lb (+ lb (/ (- ub lb) 2)))
-                finally (return lb)))
-        (col
-          (loop with lb = 0
-                with ub = 8
-                for i from 7 to 9
-                if (string= "L" (aref line i))
-                  do (setq ub (+ lb (/ (- ub lb) 2)))
-                else
-                  do (setq lb (+ lb (/ (- ub lb) 2)))
-                finally (return lb))))
+  (let ((row (loop for i from 0 to 6
+                   if (char= #\B (aref line i))
+                     sum (expt 2 (- 6 i)) into ret
+                   finally (return ret)))
+        (col (loop for i from 7 to 9
+                   if (char= #\R (aref line i))
+                     sum (expt 2 (- 9 i)) into ret                
+                   finally (return ret))))
     (+ col (* row 8))))
 
 (defun read-file-as-lines-p1 (filename &key)
@@ -26,23 +16,51 @@
   (with-open-file (in (advent_of_code_2020:get-file-pathname filename))
     (loop for line = (read-line in nil nil)
           while line
-          maximize (get-row-id line))))
-
-(defun read-file-as-lines-p2 (filename &key)
-  "Read file into a list of lines."
-  (let ((arr (make-array (* 128 8) :initial-element 0)))
-    (with-open-file (in (advent_of_code_2020:get-file-pathname filename))
-      (loop for line = (read-line in nil nil)
-            while line
-            do (setf (aref arr (get-row-id line)) 1)))
-    (loop for i from 1 to (1- (* 128 8))
-          if (and (= 0 (aref arr i))
-                  (= 1 (aref arr (1- i)))
-                  (= 1 (aref arr (1+ i))))
-            do (return i))))
+          for id = (get-row-id line)
+          maximize id into max
+          minimize id into min
+          sum      id into add
+          finally (return (list max min add)))))
 
 (defun get-answer (&key (filename "p5"))  
-  (let ((ans1 (read-file-as-lines-p1 filename))
-        (ans2 (read-file-as-lines-p2 filename)))
-    (format t "answer1 = ~A~%" ans1)
-    (format t "answer2 = ~A~%" ans2)))
+  (let ((stats (read-file-as-lines-p1 filename)))
+    (format t "answer1 = ~A~%" (car stats))
+    (format t "answer2 = ~A~%" (-
+                                (* (- (first stats) (second stats) -1)
+                                   (/ (+ (first stats)
+                                         (second stats))
+                                      2))
+                                (third stats)))))
+
+;; Original
+;; Q5> (time (get-answer))
+;; answer1 = 878
+;; answer2 = 504
+;; Evaluation took:
+;;   0.002 seconds of real time
+;;   0.002381 seconds of total run time (0.002027 user, 0.000354 system)
+;;   100.00% CPU
+;;   5,235,572 processor cycles
+;;   654,768 bytes consed
+
+;; Second after removing second read
+;; Q5> (time (get-answer))
+;; answer1 = 878
+;; answer2 = 504
+;; Evaluation took:
+;;   0.001 seconds of real time
+;;   0.000940 seconds of total run time (0.000751 user, 0.000189 system)
+;;   100.00% CPU
+;;   2,066,902 processor cycles
+;;   327,552 bytes consed
+
+;; Cleaned up final version with improved binary computation
+;; Q5> (time (get-answer))
+;; answer1 = 878
+;; answer2 = 504
+;; Evaluation took:
+;;   0.000 seconds of real time
+;;   0.000528 seconds of total run time (0.000435 user, 0.000093 system)
+;;   100.00% CPU
+;;   1,159,277 processor cycles
+;;   65,472 bytes consed

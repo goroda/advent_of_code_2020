@@ -31,3 +31,11 @@
 (defpackage q6
   (:use #:cl
         #:alexandria))
+
+(defpackage q7
+  (:use #:cl
+        #:alexandria))
+
+(defpackage q8
+  (:use #:cl
+        #:alexandria))

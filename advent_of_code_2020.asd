@@ -17,4 +17,6 @@
                (:file "q3")
                (:file "q4")
                (:file "q5")
-               (:file "q6")))
+               (:file "q6")
+               (:file "q7")
+               (:file "q8")))

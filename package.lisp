@@ -39,3 +39,7 @@
 (defpackage q8
   (:use #:cl
         #:alexandria))
+
+(defpackage q9
+  (:use #:cl
+        #:alexandria))

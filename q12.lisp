@@ -88,4 +88,13 @@
     (format t "Answer 1 = ~A~%" code)
     (format t "Answer 2 = ~A~%" code2)))
 
-
+;; Original
+;; Q12> (time (get-answer))
+;; Answer 1 = 1319
+;; Answer 2 = 62434
+;; Evaluation took:
+;;   0.001 seconds of real time
+;;   0.000745 seconds of total run time (0.000620 user, 0.000125 system)
+;;   100.00% CPU
+;;   1,629,770 processor cycles
+;;   294,848 bytes consed

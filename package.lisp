@@ -69,3 +69,7 @@
 (defpackage q16
   (:use #:cl
         #:alexandria))
+
+(defpackage q17
+  (:use #:cl
+        #:alexandria))

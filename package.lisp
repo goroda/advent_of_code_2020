@@ -6,7 +6,6 @@
    :*project-dir*
    :get-file-pathname))
 
-
 (defpackage q1
   (:use #:cl
         #:alexandria))
@@ -64,5 +63,9 @@
         #:alexandria))
 
 (defpackage q15
+  (:use #:cl
+        #:alexandria))
+
+(defpackage q16
   (:use #:cl
         #:alexandria))

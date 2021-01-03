@@ -32,52 +32,27 @@
             collect line into checks
           finally (return (values rules checks)))))
 
-
-(defun check-rule (rule next-rule all-rules str start)
-  ;; (format t "~t Checking Rule ~A; Next Rule is ~A; str = ~A start = ~A~%"
-  ;;         rule next-rule str start)
-  (cond ((and (not (null rule)) (>= start (length str))) nil)
-        ((and (null rule) (= start (length str))) t)
-        ((and (null rule) (/= start (length str))) nil)
-        ((characterp rule) (if (char= (aref str start) rule)
-                               (check-rule (car next-rule) (cdr next-rule)
-                                           all-rules str (1+ start))
-                               nil))
-        ((numberp rule) (let ((to-check (gethash rule all-rules)))
-                          (if (listp (car to-check))
-                              (check-rule to-check next-rule all-rules str start)
-                              (check-rule (car to-check) (append (cdr to-check)
-                                                                 next-rule)
-                                          all-rules str start))))
-        ((listp rule) (if (check-rule (caar rule)
-                                      (append (cdar rule) next-rule)
-                                      all-rules str start) t
-                          (check-rule (cdr rule) next-rule all-rules str start)))
-        (t (error "rule not handled"))))
-
-
-
-(defun loop-over-rules (all-rules str)
-  "Interesting to loop over all rules, but not needed"
-  (loop for key being the hash-key of all-rules
-          using (hash-value rule)
-        :if (= key 0)
-          :do (format t "~%~% Key = ~A; rule = ~A~% " key rule)
-          :and
-          :when (if (listp (car rule))
-                    (loop :for r :in rule
-                          ;; :do (format t "multi-rule! ~A~%" r)
-                          :when (check-rule (car r) (cdr r) all-rules str 0)
-                            do (return t)
-                               ;; :do (format t "~tno good!~%")
-                          :finally (return nil))
-                    (check-rule (car rule) (cdr rule) all-rules str 0))
-            :do (return t)
-        finally (return nil)))
-
 (defun satisfies0 (all-rules str)
-  (let ((rule (gethash 0 all-rules)))
-    (check-rule (car rule) (cdr rule) all-rules str 0)))
+  (let ((len (length str))
+        (initial-rule (gethash 0 all-rules)))
+    (labels ((check-rule (rule next-rule start)
+               ;; (format t "~t Checking Rule ~A; Next Rule is ~A; str = ~A start = ~A~%"
+               ;;         rule next-rule str start)
+               (if (null rule)
+                   (if (= start len) t nil)
+                   (unless (>= start len)
+                     (etypecase rule
+                       (character (if (char= (aref str start) rule)
+                                      (check-rule (car next-rule) (cdr next-rule) (1+ start))
+                                      nil))
+                       (integer  (let ((to-check (gethash rule all-rules)))
+                                   (if (listp (car to-check))
+                                       (check-rule to-check next-rule start)
+                                       (check-rule (car to-check) (append (cdr to-check) next-rule) start))))
+                       (cons (if (check-rule (caar rule) (append (cdar rule) next-rule) start)
+                                   t
+                                   (check-rule (cdr rule) next-rule start))))))))
+      (check-rule (car initial-rule) (cdr initial-rule) 0))))
 
 (defun get-answer1 (&key (filename "p19"))
   (multiple-value-bind (rules strings) (read-file-as-lines-p1 filename)    
@@ -106,3 +81,15 @@
 ;;   100.00% CPU
 ;;   48,689,070 processor cycles
 ;;   3,669,744 bytes consed
+
+
+;; Cleaner version -- added labels for closure and typecase for matching
+;; Q19> (time (get-answer))
+;; Answer 1: 147
+;; Answer 2: 263
+;; Evaluation took:
+;;   0.017 seconds of real time
+;;   0.017460 seconds of total run time (0.017266 user, 0.000194 system)
+;;   100.00% CPU
+;;   38,445,390 processor cycles
+;;   3,669,504 bytes consed
